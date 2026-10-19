@@ -1,0 +1,16 @@
+**/__pycache__
+**/*.pyc
+.git
+.pytest_cache
+.venv
+data/
+build/
+docx/
+images/
+legacy/
+tests/
+*.pdf
+*.tex
+*.docx
+*.zip
+make_docx.py

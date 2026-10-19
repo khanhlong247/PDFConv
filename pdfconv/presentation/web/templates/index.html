@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pdfconv – PDF sang LaTeX/DOCX</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232563eb'/%3E%3Cpath d='M9 8h9l5 5v11H9z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">⇄</span>
+    <div>
+      <h1>pdfconv</h1>
+      <p>Chuyển PDF sang LaTeX và Word, giữ bố cục, logo và ảnh chìm</p>
+    </div>
+  </div>
+  <div id="status" class="status" aria-live="polite"></div>
+</header>
+
+<main class="layout">
+  <section class="card upload" aria-labelledby="up-title">
+    <h2 id="up-title">Tải file lên</h2>
+    <form id="form">
+      <label id="drop" class="drop" for="files" tabindex="0">
+        <input id="files" name="files" type="file" multiple
+               accept=".pdf,.xps,.oxps,.epub,.png,.jpg,.jpeg,.tif,.tiff,.bmp,.gif">
+        <span class="drop-icon" aria-hidden="true">⬆</span>
+        <strong>Kéo thả file vào đây</strong>
+        <span>hoặc bấm để chọn – PDF, ảnh, XPS, EPUB</span>
+        <ul id="picked" class="picked"></ul>
+      </label>
+
+      <fieldset>
+        <legend>Định dạng đầu ra</legend>
+        <label class="check"><input type="checkbox" name="fmt" value="latex" checked> LaTeX (.tex + ảnh)</label>
+        <label class="check"><input type="checkbox" name="fmt" value="docx" checked> Word (.docx)</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Kiểu LaTeX</legend>
+        <label class="radio"><input type="radio" name="latex_mode" value="exact" checked>
+          <span><b>Exact</b> – đặt từng chữ theo toạ độ, giống bản gốc nhất</span></label>
+        <label class="radio"><input type="radio" name="latex_mode" value="flow">
+          <span><b>Flow</b> – đoạn văn, tab, bảng thật, dễ sửa nội dung</span></label>
+      </fieldset>
+
+      <details class="advanced">
+        <summary>Tuỳ chọn nâng cao</summary>
+        <label class="check"><input type="checkbox" id="compile_latex" checked> Biên dịch LaTeX ra PDF</label>
+        <label class="check"><input type="checkbox" id="preview_docx" checked> Xuất DOCX ra PDF để so sánh</label>
+        <label class="check"><input type="checkbox" id="detect_tables" checked> Nhận diện bảng</label>
+        <label class="check"><input type="checkbox" id="detect_columns" checked> Nhận diện nhiều cột</label>
+        <label class="check"><input type="checkbox" id="ocr"> OCR trang scan (Tesseract)</label>
+        <div class="row">
+          <label>Ngôn ngữ OCR <input id="ocr_language" value="vie+eng" size="10"></label>
+          <label>Giới hạn trang <input id="max_pages" type="number" min="1" placeholder="tất cả"></label>
+        </div>
+        <label>Mật khẩu PDF (nếu có) <input id="password" type="password" autocomplete="off"></label>
+      </details>
+
+      <button id="submit" type="submit" class="primary" disabled>Chuyển đổi</button>
+      <p id="form-msg" class="form-msg" role="alert"></p>
+    </form>
+  </section>
+
+  <section class="jobs" aria-labelledby="jobs-title">
+    <div class="jobs-head">
+      <h2 id="jobs-title">Kết quả</h2>
+      <span id="jobs-count" class="muted"></span>
+    </div>
+    <div id="jobs"></div>
+    <p id="empty" class="empty">Chưa có file nào. Tải lên một PDF để bắt đầu.</p>
+  </section>
+</main>
+
+<template id="job-tpl">
+  <article class="card job">
+    <header class="job-head">
+      <div class="job-title">
+        <span class="badge"></span>
+        <h3 class="name"></h3>
+      </div>
+      <div class="job-actions">
+        <a class="btn zip" hidden>Tải tất cả (.zip)</a>
+        <button class="btn ghost del" type="button" title="Xoá kết quả">Xoá</button>
+      </div>
+    </header>
+    <div class="progress" hidden><div class="bar"></div><span class="msg"></span></div>
+    <p class="error" hidden></p>
+    <div class="result" hidden>
+      <div class="stats"></div>
+      <div class="files"></div>
+      <div class="viewer">
+        <div class="viewer-bar">
+          <button class="btn ghost prev" type="button" aria-label="Trang trước">‹</button>
+          <span class="page-label"></span>
+          <button class="btn ghost next" type="button" aria-label="Trang sau">›</button>
+        </div>
+        <div class="panes"></div>
+      </div>
+      <details class="warn-box" hidden><summary></summary><ul></ul></details>
+      <details class="log-box" hidden><summary>Log biên dịch</summary><pre></pre></details>
+    </div>
+  </article>
+</template>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

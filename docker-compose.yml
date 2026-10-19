@@ -1,0 +1,46 @@
+# docker compose up -d --build
+name: pdfconv
+
+services:
+  toolchain:
+    build:
+      context: .
+      target: toolchain
+      args:
+        WITH_LIBREOFFICE: "true"
+        INSTALL_MSFONTS: "false"
+    image: pdfconv-toolchain:2.0
+    restart: unless-stopped
+    expose:
+      - "8100"
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8100/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      target: web
+    image: pdfconv-web:2.0
+    restart: unless-stopped
+    depends_on:
+      toolchain:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      PDFCONV_TOOLCHAIN_URL: http://toolchain:8100
+      PDFCONV_DATA_DIR: /data
+      PDFCONV_MAX_UPLOAD_MB: "100"
+      PDFCONV_MAX_PAGES: "300"
+      PDFCONV_TOOLCHAIN_TIMEOUT: "240"
+    volumes:
+      - pdfconv-data:/data
+
+volumes:
+  pdfconv-data:
